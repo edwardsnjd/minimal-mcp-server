@@ -1,4 +1,5 @@
 import EventEmitter from 'node:events'
+import tools from './tools.js'
 
 "use strict"
 
@@ -11,11 +12,19 @@ export class Server {
   }
 
   handleMessage(message) {
-    if ('id' in message) {
-      this.handleRequest(message).forEach(m => this.events.emit('message', m))
-    } else {
-      this.handleNotification(message)
-    }
+      if ('id' in message) {
+        try {
+          this.handleRequest(message).forEach(m => this.events.emit('message', m))
+        } catch (e) {
+          const errorMessage = lspMessage({
+            id: message.id,
+            error: internalError(e),
+          })
+          this.events.emit('message', errorMessage)
+        }
+      } else {
+        this.handleNotification(message)
+      }
   }
 
   handleRequest(message) {
@@ -57,7 +66,7 @@ const initialize = (id) => lspMessage({
     "protocolVersion": "2025-03-26",
     "capabilities": {
       "logs": { },
-      "tools": { "listChanged": false },
+      "tools": { },
     },
     "serverInfo": {
       "name": "Nick's rubbish server",
@@ -75,61 +84,24 @@ const logMessage = (level, data) => lspMessage({
 const toolsList = (id) => lspMessage({
   id,
   result: {
-    tools: tools
+    tools: tools.map(t => t.info),
   }
 })
 
-const tools = [
-  {
-    name: "get_pwd",
-    description: "Give the current working directory",
-    inputSchema: {
-      type: "object",
-      properties: {},
-      required: []
-    }
-  },
-  {
-    name: "find_all_files",
-    description: "Find all files under current working directory",
-    inputSchema: {
-      type: "object",
-      properties: {},
-      required: []
-    }
-  }
-]
-
-const getPwd = () => "/blah/"
-
-const findAllFiles = () => [
-  'foo.md',
-  'bar.md',
-  'README.md',
-]
-
 const toolsCall = (id, name, args) => {
-  switch (name) {
-    case 'get_pwd':
-      return lspMessage({
-        id,
-        result: {
-          content: [ { type: "text", text: getPwd() } ],
-        },
-      })
-    case 'find_all_files':
-      return lspMessage({
-        id,
-        result: {
-          content: [ { type: "text", text: findAllFiles().join('\n') } ],
-        },
-      })
-    default:
-      return lspMessage({
-        id,
-        error: notImplemented(),
-      })
+  const tool = tools.find(t => t.info.name == name)
+  if (!tool) {
+    return lspMessage({
+      id,
+      error: notImplemented(),
+    })
   }
+  return lspMessage({
+    id,
+    result: {
+      content: [ { type: "text", text: tool(args) } ],
+    },
+  })
 }
 
 const notFound = () => ({
@@ -137,15 +109,27 @@ const notFound = () => ({
   message: "Sorry, not found"
 })
 
+// Standard JSON-RPC error codes
+const PARSE_ERROR = -32700;
+const INVALID_REQUEST = -32600;
+const METHOD_NOT_FOUND = -32601;
+const INVALID_PARAMS = -32602;
+const INTERNAL_ERROR = -32603;
+
 const notImplemented = () => ({
-  code: -32603,
-  message: "Sorry, not implemented yet"
+  code: INVALID_PARAMS,
+  message: "Sorry, not implemented"
+})
+
+const internalError = (e) => ({
+  code: INTERNAL_ERROR,
+  message: `Sorry, error occurred: ${e}`
 })
 
 const unknown = (message) => lspMessage({
   "id": message.id,
   "error": {
-    "code": -32601,
+    "code": METHOD_NOT_FOUND,
     "message": `Method not found: ${message.method}`
   }
 })
