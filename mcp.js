@@ -110,11 +110,6 @@ const toolsCall = (id, name, args) => {
   })
 }
 
-const notFound = () => ({
-  code: -32002,
-  message: "Sorry, not found"
-})
-
 const promptsList = (id) => lspMessage({
   id,
   result: {
