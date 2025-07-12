@@ -32,6 +32,7 @@ export class Server {
       case 'initialize': return this.onInitialize(message)
       case 'tools/list': return this.onToolsList(message)
       case 'tools/call': return this.onToolsCall(message)
+      case 'prompts/list': return this.onPromptsList(message)
       default: return [unknown(message)]
     }
   }
@@ -55,6 +56,10 @@ export class Server {
     return [toolsCall(id, name, args)]
   }
 
+  onPromptsList({id}) {
+    return [promptsList(id)]
+  }
+
   // Notification handlers
 }
 
@@ -65,6 +70,7 @@ const initialize = (id) => lspMessage({
   "result": {
     "protocolVersion": "2025-03-26",
     "capabilities": {
+      "prompts": { },
       "logs": { },
       "tools": { },
     },
@@ -107,6 +113,13 @@ const toolsCall = (id, name, args) => {
 const notFound = () => ({
   code: -32002,
   message: "Sorry, not found"
+})
+
+const promptsList = (id) => lspMessage({
+  id,
+  result: {
+    prompts: [],
+  },
 })
 
 // Standard JSON-RPC error codes
