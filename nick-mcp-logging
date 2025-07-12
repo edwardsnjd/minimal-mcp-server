@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+
+set -o nounset
+set -o errexit
+set -o pipefail
+#set -o xtrace
+
+tee -a 'mcp-stdin.log' | nick-mcp 2>> 'mcp-stderr.log' | tee -a 'mcp-stdout.log'

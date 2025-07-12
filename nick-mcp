@@ -1,0 +1,14 @@
+#! /usr/bin/env node
+
+"use strict"
+
+import { buildParser, format } from './parser.js'
+import { Server } from './mcp.js'
+
+const parser = buildParser()
+process.stdin.on('data', chunk => parser.input(chunk))
+const sendMessage = (message) => process.stdout.write(format(message))
+
+const server = new Server()
+parser.events.on('message', message => server.handleMessage(message))
+server.events.on('message', message => sendMessage(message))
