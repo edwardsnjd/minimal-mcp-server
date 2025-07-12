@@ -6,9 +6,12 @@ Only supports `stdio`.
 
 ## Tools
 
-For testing, there are two dummy tools:
-- get_pwd = pretend to expose `pwd`
-- find_all_files = pretend to expose `find .`
+The plan is to keep this server minimal by exposing only a small number of relatively safe tools:
+- find_all_files = expose `fd .`
+- describe_file REL_PATH = describe the given file
+- cat_file REL_PATH = cat the content of the given file
+- git_log [REL_PATH] = terse git log
+- git_show COMMIT = full git show
 
 ## Testing
 

@@ -1,19 +1,6 @@
-const getPwd = () => "/blah/"
-getPwd.info = {
-  name: "get_pwd",
-  description: "Give the current working directory",
-  inputSchema: {
-    type: "object",
-    properties: {},
-    required: []
-  }
-}
+import child_process from 'node:child_process'
 
-const findAllFiles = () => [
-  'foo.md',
-  'bar.md',
-  'README.md',
-]
+const findAllFiles = () => child_process.execSync('fd .', {encoding: 'utf-8'})
 findAllFiles.info = {
   name: "find_all_files",
   description: "Find all files under current working directory",
@@ -24,8 +11,63 @@ findAllFiles.info = {
   }
 }
 
+const listFile = ({ path }) => child_process.execSync(`ls -l ${path}`, {encoding: 'utf-8'})
+listFile.info = {
+  name: "list_file",
+  description: "List the info about the current file (in ls -l format)",
+  inputSchema: {
+    type: "object",
+    properties: {
+      path: { type: "string" }
+    },
+    required: ["path"],
+  }
+}
+
+const catFile = ({ path }) => child_process.execSync(`cat ${path}`, {encoding: 'utf-8'})
+catFile.info = {
+  name: "cat_file",
+  description: "Output the text of the given file.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      path: { type: "string" }
+    },
+    required: ["path"],
+  }
+}
+
+const gitLog = ({ path = "" }) => child_process.execSync(`git log --oneline -- ${path}`, {encoding: 'utf-8'})
+gitLog.info = {
+  name: "git_log",
+  description: "Show the terse git log, optionally limited by path.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      path: { type: "string" }
+    },
+    required: [],
+  }
+}
+
+const gitShow = ({ commit }) => child_process.execSync(`git show ${commit}`, {encoding: 'utf-8'})
+gitShow.info = {
+  name: "git_show",
+  description: "Show details of a single git commit.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      commit: { type: "string" }
+    },
+    required: ["commit"],
+  }
+}
+
 export default [
-  getPwd,
   findAllFiles,
+  listFile,
+  catFile,
+  gitLog,
+  gitShow,
 ]
 
