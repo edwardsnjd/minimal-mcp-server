@@ -7,7 +7,6 @@ import tools from './tools.js'
 
 export class Server {
   constructor() {
-    this.files = new Map()
     this.events = new EventEmitter()
   }
 
