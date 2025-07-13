@@ -29,7 +29,9 @@ export const buildParser = () => {
   let result = null
   const input = (chunk) => {
     buffer += chunk.toString()
-    while (result = findLine(buffer)) { buffer = result }
+    while ((result = findLine(buffer)) !== undefined) {
+      buffer = result
+    }
   }
 
   return { input, events }
