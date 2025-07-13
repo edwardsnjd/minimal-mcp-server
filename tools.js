@@ -11,19 +11,6 @@ findAllFiles.info = {
   }
 }
 
-const listFile = ({ path }) => child_process.execSync(`ls -l ${path}`, {encoding: 'utf-8'})
-listFile.info = {
-  name: "list_file",
-  description: "List the info about the current file (in ls -l format)",
-  inputSchema: {
-    type: "object",
-    properties: {
-      path: { type: "string" }
-    },
-    required: ["path"],
-  }
-}
-
 const catFile = ({ path }) => child_process.execSync(`cat ${path}`, {encoding: 'utf-8'})
 catFile.info = {
   name: "cat_file",
@@ -65,9 +52,7 @@ gitShow.info = {
 
 export default [
   findAllFiles,
-  listFile,
   catFile,
   gitLog,
   gitShow,
 ]
-
