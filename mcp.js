@@ -15,7 +15,7 @@ export class Server {
         try {
           this.handleRequest(message).forEach(m => this.events.emit('message', m))
         } catch (e) {
-          const errorMessage = lspMessage({
+          const errorMessage = rpcMessage({
             id: message.id,
             error: internalError(e),
           })
@@ -64,7 +64,7 @@ export class Server {
 
 // MCP responses
 
-const initialize = (id) => lspMessage({
+const initialize = (id) => rpcMessage({
   "id": id,
   "result": {
     "protocolVersion": "2025-03-26",
@@ -81,12 +81,12 @@ const initialize = (id) => lspMessage({
   }
 })
 
-const logMessage = (level, data) => lspMessage({
+const logMessage = (level, data) => rpcMessage({
   method: "notifications/message",
   params: { level, data }
 })
 
-const toolsList = (id) => lspMessage({
+const toolsList = (id) => rpcMessage({
   id,
   result: {
     tools: tools.map(t => t.info),
@@ -96,12 +96,12 @@ const toolsList = (id) => lspMessage({
 const toolsCall = (id, name, args) => {
   const tool = tools.find(t => t.info.name == name)
   if (!tool) {
-    return lspMessage({
+    return rpcMessage({
       id,
       error: notImplemented(),
     })
   }
-  return lspMessage({
+  return rpcMessage({
     id,
     result: {
       content: [ { type: "text", text: tool(args) } ],
@@ -109,7 +109,7 @@ const toolsCall = (id, name, args) => {
   })
 }
 
-const promptsList = (id) => lspMessage({
+const promptsList = (id) => rpcMessage({
   id,
   result: {
     prompts: [],
@@ -133,7 +133,7 @@ const internalError = (e) => ({
   message: `Sorry, error occurred: ${e}`
 })
 
-const unknown = (message) => lspMessage({
+const unknown = (message) => rpcMessage({
   "id": message.id,
   "error": {
     "code": METHOD_NOT_FOUND,
@@ -141,4 +141,4 @@ const unknown = (message) => lspMessage({
   }
 })
 
-const lspMessage = (body) => ({ jsonrpc: "2.0", ...body })
+const rpcMessage = (body) => ({ jsonrpc: "2.0", ...body })
