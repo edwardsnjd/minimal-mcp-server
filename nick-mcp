@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-"use strict"
+'use strict'
 
 import { buildParser, format } from './parser.js'
 import { Server } from './mcp.js'

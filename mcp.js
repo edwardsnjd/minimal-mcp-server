@@ -1,7 +1,7 @@
 import EventEmitter from 'node:events'
 import tools from './tools.js'
 
-"use strict"
+'use strict'
 
 // MCP protocol
 
@@ -68,24 +68,24 @@ export class Server {
 // MCP message factories
 
 const initialize = (id) => rpcMessage({
-  "id": id,
-  "result": {
-    "protocolVersion": "2025-03-26",
-    "capabilities": {
-      "prompts": { },
-      "logs": { },
-      "tools": { },
+  'id': id,
+  'result': {
+    'protocolVersion': '2025-03-26',
+    'capabilities': {
+      'prompts': { },
+      'logs': { },
+      'tools': { },
     },
-    "serverInfo": {
-      "name": "Nick's rubbish server",
-      "version": "0.0.1"
+    'serverInfo': {
+      'name': "Nick's rubbish server",
+      'version': '0.0.1'
     },
-    "instructions": "Optional instructions for the client"
+    'instructions': 'Optional instructions for the client'
   }
 })
 
 const logMessage = (level, data) => rpcMessage({
-  method: "notifications/message",
+  method: 'notifications/message',
   params: { level, data }
 })
 
@@ -107,7 +107,7 @@ const toolsCall = (id, name, args) => {
   return rpcMessage({
     id,
     result: {
-      content: [ { type: "text", text: tool(args) } ],
+      content: [ { type: 'text', text: tool(args) } ],
     },
   })
 }
@@ -128,7 +128,7 @@ const INTERNAL_ERROR = -32603;
 
 const notImplemented = () => ({
   code: INVALID_PARAMS,
-  message: "Sorry, not implemented"
+  message: 'Sorry, not implemented'
 })
 
 const internalError = (e) => ({
@@ -137,11 +137,11 @@ const internalError = (e) => ({
 })
 
 const unknown = (message) => rpcMessage({
-  "id": message.id,
-  "error": {
-    "code": METHOD_NOT_FOUND,
-    "message": `Method not found: ${message.method}`
+  'id': message.id,
+  'error': {
+    'code': METHOD_NOT_FOUND,
+    'message': `Method not found: ${message.method}`
   }
 })
 
-const rpcMessage = (body) => ({ jsonrpc: "2.0", ...body })
+const rpcMessage = (body) => ({ jsonrpc: '2.0', ...body })

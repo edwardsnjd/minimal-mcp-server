@@ -1,6 +1,6 @@
 import EventEmitter from 'node:events'
 
-"use strict"
+'use strict'
 
 // Line protocol
 
@@ -25,7 +25,7 @@ export const buildParser = () => {
     return remaining
   }
 
-  let buffer = ""
+  let buffer = ''
   let result = null
   const input = (chunk) => {
     buffer += chunk.toString()
