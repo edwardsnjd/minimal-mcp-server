@@ -4,6 +4,8 @@ Little MCP server to act as a local base MCP instance for any little tools I'd l
 
 Only supports `stdio`.
 
+Do not use this for anything important.  This is an educational toy.
+
 ## Tools
 
 The plan is to keep this server minimal by exposing only a small number of relatively safe tools:
