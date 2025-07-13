@@ -49,74 +49,65 @@ export class Server {
   // Request handlers
 
   onInitialize({id}) {
-    return initialize(id)
+    return rpcMessage({
+      id,
+      result: {
+        protocolVersion: '2025-03-26',
+        capabilities: {
+          prompts: { },
+          logs: { },
+          tools: { },
+        },
+        serverInfo: {
+          name: "Nick's rubbish server",
+          version: '0.0.1'
+        },
+        instructions: 'Optional instructions for the client'
+      }
+    })
   }
 
   onToolsList({id}) {
-    return toolsList(id)
+    return rpcMessage({
+      id,
+      result: {
+        tools: tools.map(t => t.info),
+      }
+    })
   }
 
   onToolsCall({ id, params: { name, arguments: args } }) {
-    return toolsCall(id, name, args)
+    const tool = tools.find(t => t.info.name == name)
+
+    if (!tool) {
+      return rpcMessage({
+        id,
+        error: notImplemented(),
+      })
+    }
+
+    const text = tool(args)
+    return rpcMessage({
+      id,
+      result: {
+        content: [ { type: 'text', text } ],
+      },
+    })
   }
 
   onPromptsList({id}) {
-    return promptsList(id)
+    return rpcMessage({
+      id,
+      result: { prompts: [] },
+    })
   }
 }
 
 // MCP message factories
 
-const initialize = (id) => rpcMessage({
-  'id': id,
-  'result': {
-    'protocolVersion': '2025-03-26',
-    'capabilities': {
-      'prompts': { },
-      'logs': { },
-      'tools': { },
-    },
-    'serverInfo': {
-      'name': "Nick's rubbish server",
-      'version': '0.0.1'
-    },
-    'instructions': 'Optional instructions for the client'
-  }
-})
-
 const logMessage = (level, data) => rpcMessage({
   method: 'notifications/message',
   params: { level, data }
-})
-
-const toolsList = (id) => rpcMessage({
-  id,
-  result: {
-    tools: tools.map(t => t.info),
-  }
-})
-
-const toolsCall = (id, name, args) => {
-  const tool = tools.find(t => t.info.name == name)
-  if (!tool) {
-    return rpcMessage({
-      id,
-      error: notImplemented(),
-    })
-  }
-  return rpcMessage({
-    id,
-    result: {
-      content: [ { type: 'text', text: tool(args) } ],
-    },
-  })
-}
-
-const promptsList = (id) => rpcMessage({
-  id,
-  result: {
-    prompts: [],
-  },
 })
 
 // Standard JSON-RPC error codes
@@ -136,11 +127,11 @@ const internalError = (e) => ({
   message: `Sorry, error occurred: ${e}`
 })
 
-const unknown = (message) => rpcMessage({
-  'id': message.id,
-  'error': {
-    'code': METHOD_NOT_FOUND,
-    'message': `Method not found: ${message.method}`
+const unknown = ({ id, method }) => rpcMessage({
+  id,
+  error: {
+    code: METHOD_NOT_FOUND,
+    message: `Method not found: ${method}`
   }
 })
 
