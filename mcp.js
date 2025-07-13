@@ -13,17 +13,22 @@ export class Server {
   handleMessage(message) {
       if ('id' in message) {
         try {
-          this.handleRequest(message).forEach(m => this.events.emit('message', m))
+          const response = this.handleRequest(message)
+          this.send(response)
         } catch (e) {
           const errorMessage = rpcMessage({
             id: message.id,
             error: internalError(e),
           })
-          this.events.emit('message', errorMessage)
+          this.send(errorMessage)
         }
       } else {
         this.handleNotification(message)
       }
+  }
+
+  send(message) {
+    this.events.emit('message', message)
   }
 
   handleRequest(message) {
@@ -32,7 +37,7 @@ export class Server {
       case 'tools/list': return this.onToolsList(message)
       case 'tools/call': return this.onToolsCall(message)
       case 'prompts/list': return this.onPromptsList(message)
-      default: return [unknown(message)]
+      default: return unknown(message)
     }
   }
 
@@ -44,25 +49,23 @@ export class Server {
   // Request handlers
 
   onInitialize({id}) {
-    return [initialize(id)]
+    return initialize(id)
   }
 
   onToolsList({id}) {
-    return [toolsList(id)]
+    return toolsList(id)
   }
 
   onToolsCall({ id, params: { name, arguments: args } }) {
-    return [toolsCall(id, name, args)]
+    return toolsCall(id, name, args)
   }
 
   onPromptsList({id}) {
-    return [promptsList(id)]
+    return promptsList(id)
   }
-
-  // Notification handlers
 }
 
-// MCP responses
+// MCP message factories
 
 const initialize = (id) => rpcMessage({
   "id": id,
