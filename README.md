@@ -9,11 +9,11 @@ Do not use this for anything important.  This is an educational toy.
 ## Tools
 
 The plan is to keep this server minimal by exposing only a small number of relatively safe tools:
-- find_all_files = expose `fd .`
-- describe_file REL_PATH = describe the given file
+- find_all_files [PATTERN] = expose local file listing ("ls -l" style)
 - cat_file REL_PATH = cat the content of the given file
 - git_log [REL_PATH] = terse git log
 - git_show COMMIT = full git show
+- find_text_in_files [PATTERN] = text search
 
 ## Testing
 
