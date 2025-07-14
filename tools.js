@@ -19,10 +19,20 @@ findAllFiles.info = {
   }
 }
 
-const catFile = ({ path }) => child_process.execSync(
-  `cat ${path}`,
-  {encoding: 'utf-8'},
-)
+const relativePathRegex = /^(\.\/|[a-zA-Z0-9_\-])/
+const ancestorPathStepRegex = /\.\./
+const catFile = ({ path }) => {
+  if (!relativePathRegex.test(path)) {
+    throw `Sorry, path looks like it's not from this project: "${path}"`
+  }
+  if (ancestorPathStepRegex.test(path)) {
+    throw `Sorry, no ancestor steps allowed: "${path}"`
+  }
+  return child_process.execSync(
+    `cat ${path}`,
+    {encoding: 'utf-8'},
+  )
+}
 catFile.info = {
   name: "cat_file",
   description: "Output the text of the given file.  This is useful to read the contents.",
