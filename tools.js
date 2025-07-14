@@ -1,15 +1,20 @@
 import child_process from 'node:child_process'
 
-const findAllFiles = () => child_process.execSync(
-  'fd --hidden --list-details .',
+const findAllFiles = ({ filter }) => child_process.execSync(
+  `fd --hidden --list-details "${filter || '.'}"`,
   {encoding: 'utf-8'},
 )
 findAllFiles.info = {
   name: "find_all_files",
-  description: "Find the relative paths of all files and directories under the current working directory.",
+  description: "Find all files and directories under the current working directory and list their details (no content).",
   inputSchema: {
     type: "object",
-    properties: {},
+    properties: {
+      filter: {
+        type: "string",
+        description: "Only list paths that match this regex",
+      },
+    },
     required: []
   }
 }
@@ -62,19 +67,22 @@ gitShow.info = {
   }
 }
 
-const textSearch = ({ target }) => child_process.execSync(
-  `rg --no-heading --column --line-number "${target}" ./ || true`,
+const findTextInFiles = ({ pattern }) => child_process.execSync(
+  `rg --no-heading --column --line-number --hidden -- "${pattern}" ./ || true`,
   {encoding: 'utf-8'},
 )
-textSearch.info = {
-  name: "text_search",
-  description: "Recursively search for the target text in files under the current directory.",
+findTextInFiles.info = {
+  name: "find_text_in_files",
+  description: "Find all occurrences of the target text in files under the current directory (and return 'path:line:column:match').",
   inputSchema: {
     type: "object",
     properties: {
-      target: { type: "string" }
+      pattern: {
+        type: "string",
+        description: "Look for this text matching this regex.",
+      }
     },
-    required: ["target"],
+    required: ["pattern"],
   }
 }
 
@@ -83,5 +91,5 @@ export default [
   catFile,
   gitLog,
   gitShow,
-  textSearch,
+  findTextInFiles,
 ]
