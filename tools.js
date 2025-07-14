@@ -1,6 +1,9 @@
 import child_process from 'node:child_process'
 
-const findAllFiles = () => child_process.execSync('fd .', {encoding: 'utf-8'})
+const findAllFiles = () => child_process.execSync(
+  'fd --hidden --list-details .',
+  {encoding: 'utf-8'},
+)
 findAllFiles.info = {
   name: "find_all_files",
   description: "Find the relative paths of all files and directories under the current working directory.",
