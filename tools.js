@@ -1,9 +1,13 @@
 import child_process from 'node:child_process'
 
-const findAllFiles = ({ filter }) => child_process.execSync(
-  `fd --hidden --list-details "${filter || '.'}"`,
-  {encoding: 'utf-8'},
-)
+const findAllFiles = ({ filter }) => {
+  filter = filter || '.'
+  const pathArg = filter.includes('/') ? '--full-path' : ''
+  return child_process.execSync(
+    `fd --hidden --list-details ${pathArg} "${filter}"`,
+    {encoding: 'utf-8'},
+  )
+}
 findAllFiles.info = {
   name: "find_all_files",
   description: "Find all files and directories under the current working directory and list their details (no content).",
